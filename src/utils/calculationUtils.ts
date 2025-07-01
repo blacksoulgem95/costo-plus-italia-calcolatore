@@ -211,7 +211,7 @@ export const calculateProjectCost = (
   const totalPersonnelCost = freelancerCosts + employeeCost;
 
   // Calcolo dei costi del progetto
-  const totalProjectCost = totalPersonnelCost + overheadCost + projectData.directCosts;
+  const totalProjectCost = totalPersonnelCost + overheadCost + activeProject.directCosts;
 
   // Calcolo del prezzo in base al markup
   const profitMarginMultiplier = 1 + (companyData.profitMargin / 100);
