@@ -50,7 +50,7 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
             </div>
 
             <div className="flex justify-between text-sm font-mono">
-              <span><span className="text-secondary">&gt;</span> Overhead:</span>
+              <span><span className="text-secondary">&gt;</span> Overhead ({projectData.durationMonths} {getMesiLabel(projectData.durationMonths)}):</span>
               <span className="font-medium text-accent neon-text">{formatEuro(results.overheadCost)}</span>
             </div>
 
@@ -121,15 +121,15 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
         </CardHeader>
         <CardContent className="p-4 bg-card/50">
           <div className="space-y-3">
-            {resources.filter(r => (r.projectHours || 0) > 0).map((resource) => {
+            {resources.filter(r => (r.projectHours ?? 0) > 0).map((resource) => {
               const hourlyCost = calculateHourlyCost(resource);
-              const resourceCost = hourlyCost * (resource.projectHours || 0);
+              const resourceCost = hourlyCost * (resource.projectHours ?? 0);
               
               return (
                 <div key={resource.id} className="flex justify-between items-center text-sm p-2 cyberpunk-card bg-accent/5 rounded border-accent/20 font-mono">
                   <div>
                     <div className="font-medium text-foreground">
-                      <span className="text-accent">&gt;</span> {resource.name || 'Risorsa'}
+                      <span className="text-accent">&gt;</span> {resource.name ?? 'Risorsa'}
                       {resource.contractType === 'partitaiva' && (
                         <Badge className="ml-2 bg-primary/20 text-primary text-xs" variant="outline">
                           Freelancer {resource.vatRate ? `IVA ${resource.vatRate}%` : ''}

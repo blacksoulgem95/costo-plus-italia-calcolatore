@@ -63,6 +63,9 @@ const ProjectDataCard: React.FC<ProjectDataCardProps> = ({ projectData, setProje
             placeholder="Licenze software, API premium, hardware dedicato..."
             className="cyberpunk-input font-mono"
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            <span className="text-accent">&gt;</span> Influisce sui costi di dipendenti e overhead
+          </p>
         </div>
       </CardContent>
     </Card>

@@ -86,14 +86,20 @@ export const calculateProjectCost = (
   const projectTotalHours = resources.reduce((sum, resource) => sum + (resource.projectHours || 0), 0);
 
   // Calcola la tariffa mensile di overhead
-  const totalFixedCostsPerMonth = calculateTotalFixedCosts(fixedCosts) / 12;
-  const averageMonthlyHours = totalBillableHours / 12;
+  const totalFixedCostsPerMonth = calculateTotalFixedCosts(fixedCosts) / 12;  // Costi fissi mensili
+  const averageMonthlyHours = totalBillableHours / 12;                      // Ore fatturabili mensili
+
+  // Calcola il tasso orario dell'overhead dividendo i costi fissi mensili per le ore fatturabili mensili
   const monthlyOverheadRate = averageMonthlyHours > 0 
     ? totalFixedCostsPerMonth / averageMonthlyHours
     : 0;
 
-  // Calcola il costo dell'overhead per il progetto
-  const overheadCost = monthlyOverheadRate * projectTotalHours;
+  // Calcola il costo dell'overhead per le ore di progetto in un mese
+  const monthlyOverheadCost = monthlyOverheadRate * projectTotalHours;
+
+  // Moltiplica per la durata del progetto in mesi per ottenere l'overhead totale
+  // Questo assicura che l'overhead sia proporzionale alla durata del progetto
+  const overheadCost = monthlyOverheadCost * projectData.durationMonths;
 
   // Separiamo il calcolo per freelancer e dipendenti
   const freelancerCosts = resources
