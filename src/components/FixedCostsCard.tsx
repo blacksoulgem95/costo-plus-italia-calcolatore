@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Euro } from 'lucide-react';
+import { Euro, Server } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,37 +14,56 @@ interface FixedCostsCardProps {
 
 const FixedCostsCard: React.FC<FixedCostsCardProps> = ({ fixedCosts, setFixedCosts }) => {
   const labels = {
-    rent: 'Affitto e Spese Immobiliari',
-    utilities: 'Utenze',
-    software: 'Software e Licenze',
-    hardware: 'Hardware',
-    marketing: 'Marketing',
-    administration: 'Amministrazione',
-    insurance: 'Assicurazioni',
-    travel: 'Spese Viaggio',
-    training: 'Formazione',
-    other: 'Altro'
+    rent: 'Affitto & Immobiliari',
+    utilities: 'Utenze Energetiche',
+    software: 'Software & Licenze',
+    hardware: 'Hardware Systems',
+    marketing: 'Marketing Protocol',
+    administration: 'Admin Interface',
+    insurance: 'Security Insurance',
+    travel: 'Transport Costs',
+    training: 'Skill Enhancement',
+    other: 'Miscellaneous Data'
+  };
+
+  const icons = {
+    rent: '🏢',
+    utilities: '⚡',
+    software: '💾',
+    hardware: '🖥️',
+    marketing: '📡',
+    administration: '⚙️',
+    insurance: '🛡️',
+    travel: '🚀',
+    training: '🧠',
+    other: '📊'
   };
 
   return (
-    <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
-      <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-t-lg">
-        <CardTitle className="flex items-center gap-2">
-          <Euro className="h-5 w-5" />
-          3. Costi Fissi Annuali
+    <Card className="cyberpunk-card border-secondary/30">
+      <CardHeader className="bg-gradient-to-r from-secondary/20 to-accent/20 rounded-t-lg border-b border-secondary/30">
+        <CardTitle className="flex items-center gap-3 text-secondary neon-text font-mono">
+          <div className="cyberpunk-glow-magenta rounded p-1">
+            <Euro className="h-5 w-5" />
+          </div>
+          <span className="text-lg">[03] OVERHEAD COST ANALYSIS</span>
+          <Server className="h-4 w-4 text-primary cyberpunk-pulse ml-auto" />
         </CardTitle>
-        <CardDescription className="text-purple-100">
-          Costi operativi generali dell'azienda
+        <CardDescription className="text-muted-foreground font-mono">
+          <span className="text-secondary">&gt;</span> Costi operativi fissi dell'organizzazione
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-6 bg-card/50">
         <div className="grid md:grid-cols-2 gap-4">
           {Object.entries(fixedCosts).map(([key, value]) => {
             if (key === 'otherDescription') return null;
             
             return (
-              <div key={key}>
-                <Label>{labels[key as keyof typeof labels]} (€)</Label>
+              <div key={key} className="space-y-2">
+                <Label className="font-mono text-foreground flex items-center gap-2">
+                  <span className="text-lg">{icons[key as keyof typeof icons]}</span>
+                  <span className="text-accent">&gt;</span> {labels[key as keyof typeof labels]} (€)
+                </Label>
                 <Input
                   type="number"
                   value={value}
@@ -52,6 +71,7 @@ const FixedCostsCard: React.FC<FixedCostsCardProps> = ({ fixedCosts, setFixedCos
                     ...fixedCosts,
                     [key]: parseFloat(e.target.value) || 0
                   })}
+                  className="cyberpunk-input font-mono"
                 />
               </div>
             );
@@ -59,23 +79,29 @@ const FixedCostsCard: React.FC<FixedCostsCardProps> = ({ fixedCosts, setFixedCos
         </div>
         
         {fixedCosts.other > 0 && (
-          <div className="mt-4">
-            <Label>Descrizione Altri Costi</Label>
+          <div className="mt-6">
+            <Label className="font-mono text-foreground mb-2 block">
+              <span className="text-accent">&gt;</span> Descrizione Dati Aggiuntivi
+            </Label>
             <Input
               value={fixedCosts.otherDescription}
               onChange={(e) => setFixedCosts({
                 ...fixedCosts,
                 otherDescription: e.target.value
               })}
-              placeholder="Specifica altri costi..."
+              placeholder="Specifica altri costi operativi..."
+              className="cyberpunk-input font-mono"
             />
           </div>
         )}
         
-        <div className="mt-4 p-3 bg-purple-50 rounded-lg">
-          <p className="text-sm font-medium text-purple-800">
-            Totale Costi Fissi Annuali: €{calculateTotalFixedCosts(fixedCosts).toLocaleString('it-IT')}
-          </p>
+        <div className="mt-6 p-4 cyberpunk-card border-secondary/50 rounded-lg bg-secondary/5">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-secondary rounded-full cyberpunk-pulse"></div>
+            <p className="text-sm font-mono font-bold text-secondary neon-text">
+              TOTAL OVERHEAD: €{calculateTotalFixedCosts(fixedCosts).toLocaleString('it-IT')} / anno
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
