@@ -48,6 +48,10 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({ resources, setResources }
         <CardDescription className="text-muted-foreground font-mono">
           <span className="text-primary">&gt;</span> Configurazione team di sviluppo e personale
         </CardDescription>
+        <div className="mt-2 text-xs text-muted-foreground font-mono bg-primary/5 p-2 rounded border border-primary/20">
+          <span className="text-primary font-semibold">&gt; INFO:</span> Per freelancer (P.IVA) inserire <span className="text-accent">solo tariffa oraria</span> o <span className="text-accent">solo compenso mensile</span>, non entrambi.<br/>
+          <span className="text-secondary font-semibold">&gt; NOTA:</span> I freelancer vengono pagati per <span className="text-accent">ore effettive di lavoro</span>, mentre dipendenti/co.co.co per <span className="text-accent">tutta la durata del progetto</span>.
+        </div>
       </CardHeader>
       <CardContent className="p-6 space-y-6 bg-card/50">
         <div className="space-y-6">
@@ -120,19 +124,81 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({ resources, setResources }
                         className="cyberpunk-input font-mono"
                       />
                     </div>
+                    <div>
+                      <Label className="font-mono text-foreground mb-2 block">
+                        <span className="text-primary">&gt;</span> Aliquota IRPEF (%)  
+                      </Label>
+                      <Input
+                        type="number"
+                        value={resource.irpef || '27'}
+                        onChange={(e) => updateResource(resource.id, 'irpef', parseFloat(e.target.value) || undefined)}
+                        className="cyberpunk-input font-mono"
+                      />
+                    </div>
+                    <div>
+                      <Label className="font-mono text-foreground mb-2 block">
+                        <span className="text-primary">&gt;</span> Contributi INPS lavoratore (%)  
+                      </Label>
+                      <Input
+                        type="number"
+                        value={resource.inps || '9'}
+                        onChange={(e) => updateResource(resource.id, 'inps', parseFloat(e.target.value) || undefined)}
+                        className="cyberpunk-input font-mono"
+                      />
+                    </div>
                   </>
                 ) : (
-                  <div>
-                    <Label className="font-mono text-foreground mb-2 block">
-                      <span className="text-primary">&gt;</span> Compenso Mensile (€)
-                    </Label>
-                    <Input
-                      type="number"
-                      value={resource.compensation || ''}
-                      onChange={(e) => updateResource(resource.id, 'compensation', parseFloat(e.target.value) || undefined)}
-                      className="cyberpunk-input font-mono"
-                    />
-                  </div>
+                  <>
+                    <div>
+                      <Label className="font-mono text-foreground mb-2 block">
+                        <span className="text-primary">&gt;</span> Tariffa Oraria (€/h)
+                      </Label>
+                      <Input
+                        type="number"
+                        value={resource.hourlyRate || ''}
+                        onChange={(e) => {
+                          // Se si imposta la tariffa oraria, annulliamo il compenso mensile
+                          if (parseFloat(e.target.value)) {
+                            updateResource(resource.id, 'compensation', undefined);
+                          }
+                          updateResource(resource.id, 'hourlyRate', parseFloat(e.target.value) || undefined);
+                        }}
+                        placeholder="Inserisci tariffa oraria"
+                        className="cyberpunk-input font-mono"
+                      />
+                    </div>
+                    {!resource.hourlyRate && (
+                      <div>
+                        <Label className="font-mono text-foreground mb-2 block">
+                          <span className="text-secondary">&gt;</span> Compenso Mensile (€)
+                        </Label>
+                        <Input
+                          type="number"
+                          value={resource.compensation || ''}
+                          onChange={(e) => {
+                            // Se si imposta il compenso mensile, annulliamo la tariffa oraria
+                            if (parseFloat(e.target.value)) {
+                              updateResource(resource.id, 'hourlyRate', undefined);
+                            }
+                            updateResource(resource.id, 'compensation', parseFloat(e.target.value) || undefined);
+                          }}
+                          placeholder="Solo se non usi tariffa oraria"
+                          className="cyberpunk-input font-mono"
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <Label className="font-mono text-foreground mb-2 block">
+                        <span className="text-accent">&gt;</span> Aliquota IVA (%)
+                      </Label>
+                      <Input
+                        type="number"
+                        value={resource.vatRate || '22'}
+                        onChange={(e) => updateResource(resource.id, 'vatRate', parseFloat(e.target.value) || undefined)}
+                        className="cyberpunk-input font-mono"
+                      />
+                    </div>
+                  </>
                 )}
                 
                 <div>

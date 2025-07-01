@@ -6,8 +6,12 @@ export interface Resource {
   netSalary?: number;
   grossSalary?: number;
   compensation?: number;
+  hourlyRate?: number;    // Tariffa oraria per Partita IVA
+  vatRate?: number;      // Aliquota IVA del freelancer
   billableHours: number;
   projectHours?: number;
+  inps?: number;         // Contributi INPS (per dipendenti e collaboratori)
+  irpef?: number;        // Aliquota IRPEF
 }
 
 export interface CompanyData {
@@ -45,4 +49,6 @@ export interface CalculationResults {
   vatAmount: number;
   finalPrice: number;
   grossProfit: number;
+  irapAmount: number;
+  netProfit: number;
 }
