@@ -53,7 +53,7 @@ const FixedCostsCard: React.FC<FixedCostsCardProps> = ({ fixedCosts, setFixedCos
           <span className="text-secondary">&gt;</span> Costi operativi fissi dell'organizzazione
         </CardDescription>
         <div className="mt-2 text-xs text-muted-foreground font-mono bg-secondary/5 p-2 rounded border border-secondary/20">
-          <span className="text-secondary font-semibold">&gt; NOTA:</span> I costi fissi (overhead) verranno ripartiti proporzionalmente alle ore di progetto e moltiplicati per la <span className="text-accent">durata del progetto in mesi</span>.
+          <span className="text-secondary font-semibold">&gt; NOTA:</span> I costi fissi (overhead) verranno ripartiti proporzionalmente alle <span className="text-accent">ore totali di progetto</span>, indipendentemente dalla durata.
         </div>
       </CardHeader>
       <CardContent className="p-6 bg-card/50">

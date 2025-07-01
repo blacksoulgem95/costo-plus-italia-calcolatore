@@ -64,7 +64,7 @@ const ProjectDataCard: React.FC<ProjectDataCardProps> = ({ projectData, setProje
             className="cyberpunk-input font-mono"
           />
           <p className="text-xs text-muted-foreground mt-1">
-            <span className="text-accent">&gt;</span> Influisce sui costi di dipendenti e overhead
+            <span className="text-accent">&gt;</span> Influisce solo sui costi dei dipendenti, non sui freelancer o sull'overhead
           </p>
         </div>
       </CardContent>

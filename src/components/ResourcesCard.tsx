@@ -193,10 +193,17 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({ resources, setResources }
                       </Label>
                       <Input
                         type="number"
-                        value={resource.vatRate || '22'}
-                        onChange={(e) => updateResource(resource.id, 'vatRate', parseFloat(e.target.value) || undefined)}
+                        min="0"
+                        value={resource.vatRate !== undefined ? resource.vatRate : '22'}
+                        onChange={(e) => {
+                          const value = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                          updateResource(resource.id, 'vatRate', value);
+                        }}
                         className="cyberpunk-input font-mono"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Inserire 0 per forfettari o esenti IVA
+                      </p>
                     </div>
                   </>
                 )}

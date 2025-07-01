@@ -17,7 +17,7 @@ const Index = () => {
     companyType: 'srl',
     irapRate: 3.9,
     profitMargin: 25,
-    vatRate: 22
+    vatRate: 22 // Valore predefinito, ma l'utente può impostarlo a 0 per esenti IVA
   });
 
   const [resources, setResources] = useState<Resource[]>([]);

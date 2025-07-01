@@ -50,7 +50,7 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
             </div>
 
             <div className="flex justify-between text-sm font-mono">
-              <span><span className="text-secondary">&gt;</span> Overhead ({projectData.durationMonths} {getMesiLabel(projectData.durationMonths)}):</span>
+              <span><span className="text-secondary">&gt;</span> Overhead (ripartito sulle ore):</span>
               <span className="font-medium text-accent neon-text">{formatEuro(results.overheadCost)}</span>
             </div>
 
@@ -74,10 +74,17 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
                 <span className="text-primary neon-text">{formatEuro(results.basePrice)}</span>
               </div>
 
-              <div className="flex justify-between text-sm font-mono">
-                <span><span className="text-secondary">&gt;</span> IVA ({companyData.vatRate}%):</span>
-                <span className="text-accent neon-text">{formatEuro(results.vatAmount)}</span>
-              </div>
+              {companyData.vatRate > 0 ? (
+                <div className="flex justify-between text-sm font-mono">
+                  <span><span className="text-secondary">&gt;</span> IVA ({companyData.vatRate}%):</span>
+                  <span className="text-accent neon-text">{formatEuro(results.vatAmount)}</span>
+                </div>
+              ) : (
+                <div className="flex justify-between text-sm font-mono">
+                  <span><span className="text-secondary">&gt;</span> IVA:</span>
+                  <span className="text-accent neon-text">Esente</span>
+                </div>
+              )}
 
               <div className="flex justify-between text-xl font-bold cyberpunk-card bg-accent/10 p-3 rounded-lg border-accent/30 font-mono">
                 <span><span className="text-accent">&gt;</span> Prezzo Finale:</span>
@@ -132,7 +139,7 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
                       <span className="text-accent">&gt;</span> {resource.name ?? 'Risorsa'}
                       {resource.contractType === 'partitaiva' && (
                         <Badge className="ml-2 bg-primary/20 text-primary text-xs" variant="outline">
-                          Freelancer {resource.vatRate ? `IVA ${resource.vatRate}%` : ''}
+                          Freelancer {resource.vatRate !== undefined ? (resource.vatRate === 0 ? 'Esente IVA' : `IVA ${resource.vatRate}%`) : ''}
                         </Badge>
                       )}
                       {resource.contractType === 'employee' && (
