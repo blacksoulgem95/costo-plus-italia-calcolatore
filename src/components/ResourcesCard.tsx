@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Users, Plus, Trash2 } from 'lucide-react';
+import { Users, Plus, Trash2, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,27 +36,32 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({ resources, setResources }
   };
 
   return (
-    <Card className="shadow-lg border-0 bg-white/80 backdrop-blur">
-      <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white rounded-t-lg">
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          2. Risorse e Personale
+    <Card className="cyberpunk-card border-primary/30">
+      <CardHeader className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-t-lg border-b border-primary/30">
+        <CardTitle className="flex items-center gap-3 text-primary neon-text font-mono">
+          <div className="cyberpunk-glow rounded p-1">
+            <Users className="h-5 w-5" />
+          </div>
+          <span className="text-lg">[02] HUMAN RESOURCES MATRIX</span>
+          <Zap className="h-4 w-4 text-accent cyberpunk-pulse ml-auto" />
         </CardTitle>
-        <CardDescription className="text-green-100">
-          Aggiungi i membri del tuo team
+        <CardDescription className="text-muted-foreground font-mono">
+          <span className="text-primary">&gt;</span> Configurazione team di sviluppo e personale
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-6 space-y-6 bg-card/50">
         <div className="space-y-6">
           {resources.map((resource, index) => (
-            <div key={resource.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <div key={resource.id} className="p-4 cyberpunk-card border-accent/20 rounded-lg bg-accent/5">
               <div className="flex items-center justify-between mb-4">
-                <Badge variant="outline">Risorsa {index + 1}</Badge>
+                <Badge className="cyberpunk-badge font-mono">
+                  RISORSA #{index + 1}
+                </Badge>
                 <Button
                   variant="outline" 
                   size="sm"
                   onClick={() => removeResource(resource.id)}
-                  className="text-red-600 hover:text-red-700"
+                  className="cyberpunk-input border-destructive/50 text-destructive hover:bg-destructive/10 font-mono"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -64,24 +69,29 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({ resources, setResources }
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Nome/Ruolo</Label>
+                  <Label className="font-mono text-foreground mb-2 block">
+                    <span className="text-primary">&gt;</span> Nome/Ruolo
+                  </Label>
                   <Input
                     value={resource.name}
                     onChange={(e) => updateResource(resource.id, 'name', e.target.value)}
                     placeholder="es. Sviluppatore Senior"
+                    className="cyberpunk-input font-mono"
                   />
                 </div>
                 <div>
-                  <Label>Tipo Contratto</Label>
+                  <Label className="font-mono text-foreground mb-2 block">
+                    <span className="text-secondary">&gt;</span> Tipo Contratto
+                  </Label>
                   <Select value={resource.contractType} onValueChange={(value) => 
                     updateResource(resource.id, 'contractType', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="cyberpunk-input font-mono">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="employee">Dipendente</SelectItem>
-                      <SelectItem value="cococo">Co.Co.Co.</SelectItem>
-                      <SelectItem value="partitaiva">Partita IVA</SelectItem>
+                    <SelectContent className="cyberpunk-card border-primary/50">
+                      <SelectItem value="employee" className="font-mono hover:bg-primary/10">Dipendente</SelectItem>
+                      <SelectItem value="cococo" className="font-mono hover:bg-primary/10">Co.Co.Co.</SelectItem>
+                      <SelectItem value="partitaiva" className="font-mono hover:bg-primary/10">Partita IVA</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -89,57 +99,72 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({ resources, setResources }
                 {resource.contractType !== 'partitaiva' ? (
                   <>
                     <div>
-                      <Label>Stipendio Netto Mensile (€)</Label>
+                      <Label className="font-mono text-foreground mb-2 block">
+                        <span className="text-accent">&gt;</span> Stipendio Netto Mensile (€)
+                      </Label>
                       <Input
                         type="number"
                         value={resource.netSalary || ''}
                         onChange={(e) => updateResource(resource.id, 'netSalary', parseFloat(e.target.value) || undefined)}
+                        className="cyberpunk-input font-mono"
                       />
                     </div>
                     <div>
-                      <Label>Stipendio Lordo Mensile (€)</Label>
+                      <Label className="font-mono text-foreground mb-2 block">
+                        <span className="text-secondary">&gt;</span> Stipendio Lordo Mensile (€)
+                      </Label>
                       <Input
                         type="number"
                         value={resource.grossSalary || ''}
                         onChange={(e) => updateResource(resource.id, 'grossSalary', parseFloat(e.target.value) || undefined)}
+                        className="cyberpunk-input font-mono"
                       />
                     </div>
                   </>
                 ) : (
                   <div>
-                    <Label>Compenso Mensile (€)</Label>
+                    <Label className="font-mono text-foreground mb-2 block">
+                      <span className="text-primary">&gt;</span> Compenso Mensile (€)
+                    </Label>
                     <Input
                       type="number"
                       value={resource.compensation || ''}
                       onChange={(e) => updateResource(resource.id, 'compensation', parseFloat(e.target.value) || undefined)}
+                      className="cyberpunk-input font-mono"
                     />
                   </div>
                 )}
                 
                 <div>
-                  <Label>Ore Fatturabili Annue</Label>
+                  <Label className="font-mono text-foreground mb-2 block">
+                    <span className="text-accent">&gt;</span> Ore Fatturabili Annue
+                  </Label>
                   <Input
                     type="number"
                     value={resource.billableHours}
                     onChange={(e) => updateResource(resource.id, 'billableHours', parseFloat(e.target.value) || 0)}
+                    className="cyberpunk-input font-mono"
                   />
                 </div>
                 <div>
-                  <Label>Ore Stimate su Progetto</Label>
+                  <Label className="font-mono text-foreground mb-2 block">
+                    <span className="text-primary">&gt;</span> Ore Stimate su Progetto
+                  </Label>
                   <Input
                     type="number"
                     value={resource.projectHours || ''}
                     onChange={(e) => updateResource(resource.id, 'projectHours', parseFloat(e.target.value) || undefined)}
                     placeholder="Ore dedicate al progetto"
+                    className="cyberpunk-input font-mono"
                   />
                 </div>
               </div>
             </div>
           ))}
           
-          <Button onClick={addResource} className="w-full" variant="outline">
+          <Button onClick={addResource} className="w-full cyberpunk-button font-mono" variant="outline">
             <Plus className="h-4 w-4 mr-2" />
-            Aggiungi Risorsa
+            AGGIUNGI RISORSA
           </Button>
         </div>
       </CardContent>
