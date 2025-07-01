@@ -10,6 +10,7 @@ import ResourcesCard from '@/components/ResourcesCard';
 import FixedCostsCard from '@/components/FixedCostsCard';
 import ProjectDataCard from '@/components/ProjectDataCard';
 import ResultsCard from '@/components/ResultsCard';
+import Footer from '@/components/Footer';
 
 const Index = () => {
   const [companyData, setCompanyData] = useState<CompanyData>({
@@ -82,8 +83,8 @@ const Index = () => {
   const results = showResults ? calculateProjectCost(resources, fixedCosts, projectData, companyData) : null;
 
   return (
-    <div className="min-h-screen bg-background cyberpunk-grid-bg">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen bg-background cyberpunk-grid-bg flex flex-col">
+      <div className="container mx-auto px-4 py-8 max-w-7xl flex-grow">
         {/* Cyberpunk Header */}
         <div className="text-center mb-12 relative">
           <div className="absolute inset-0 cyberpunk-pulse">
@@ -160,6 +161,7 @@ const Index = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
