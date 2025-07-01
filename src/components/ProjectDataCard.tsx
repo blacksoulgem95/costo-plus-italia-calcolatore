@@ -1,20 +1,19 @@
-
 import React from 'react';
-import { FileText, Database } from 'lucide-react';
+import { FileText, Database, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ProjectData, Projects } from '@/types/calculator';
-import { Plus, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ProjectData, Projects } from '@/types/calculator';
 
 interface ProjectDataCardProps {
   projects: Projects;
   setProjects: (projects: Projects) => void;
 }
 
-  const ProjectDataCard: React.FC<ProjectDataCardProps> = ({ projects, setProjects }) => {
+const ProjectDataCard: React.FC<ProjectDataCardProps> = ({ projects, setProjects }) => {
   const addProject = () => {
     const newProject: ProjectData = {
       id: Date.now().toString(),

@@ -44,7 +44,7 @@ export interface ProjectData {
 
 export interface Projects {
   items: ProjectData[];
-  activeProjectId?: string;
+  activeProjectId: string;
 }
 
 export interface CalculationResults {

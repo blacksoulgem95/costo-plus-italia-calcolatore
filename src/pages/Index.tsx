@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Calculator, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Resource, CompanyData, FixedCosts, ProjectData } from '@/types/calculator';
+import { Resource, CompanyData, FixedCosts, ProjectData, Projects } from '@/types/calculator';
 import { calculateProjectCost } from '@/utils/calculationUtils';
 import CompanyDataCard from '@/components/CompanyDataCard';
 import ResourcesCard from '@/components/ResourcesCard';
