@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calculator, Plus, Trash2, Building2, Users, Euro, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -46,6 +45,7 @@ interface FixedCosts {
 interface ProjectData {
   name: string;
   directCosts: number;
+  durationMonths: number;
 }
 
 const Index = () => {
@@ -74,7 +74,8 @@ const Index = () => {
 
   const [projectData, setProjectData] = useState<ProjectData>({
     name: '',
-    directCosts: 0
+    directCosts: 0,
+    durationMonths: 1
   });
 
   const [showResults, setShowResults] = useState(false);
@@ -112,14 +113,16 @@ const Index = () => {
     
     // Add employer contributions (simplified)
     const employerContributions = grossSalary * 0.35; // Approximate 35%
-    return (grossSalary + employerContributions) * 12; // Annual cost
+    return grossSalary + employerContributions; // Monthly cost
   };
 
   const calculateHourlyCost = (resource: Resource): number => {
     if (resource.contractType === 'partitaiva') {
-      return (resource.compensation || 0) * 12 / resource.billableHours;
+      return (resource.compensation || 0) / (resource.billableHours / 12); // Monthly hours
     }
-    return calculateEmployeeCost(resource) / resource.billableHours;
+    const monthlyCost = calculateEmployeeCost(resource);
+    const monthlyHours = resource.billableHours / 12;
+    return monthlyCost / monthlyHours;
   };
 
   const calculateTotalFixedCosts = (): number => {
@@ -135,17 +138,32 @@ const Index = () => {
     }, 0);
 
     const totalBillableHours = resources.reduce((sum, r) => sum + r.billableHours, 0);
-    const overheadCost = totalBillableHours > 0 
-      ? (calculateTotalFixedCosts() / totalBillableHours) * resources.reduce((sum, r) => sum + (r.projectHours || 0), 0)
+    const monthlyOverheadRate = totalBillableHours > 0 
+      ? (calculateTotalFixedCosts() / 12) / (totalBillableHours / 12)
       : 0;
+    
+    const projectTotalHours = resources.reduce((sum, r) => sum + (r.projectHours || 0), 0);
+    const overheadCost = monthlyOverheadRate * projectTotalHours;
 
-    const totalProjectCost = personnelCost + overheadCost + projectData.directCosts;
+    // Calculate personnel cost based on project duration
+    const monthlyPersonnelCost = resources.reduce((sum, resource) => {
+      if (resource.contractType === 'partitaiva') {
+        return sum + ((resource.compensation || 0) * (resource.projectHours || 0) / (resource.billableHours / 12));
+      }
+      const monthlyCost = calculateEmployeeCost(resource);
+      const utilizationRate = (resource.projectHours || 0) / (resource.billableHours / 12);
+      return sum + (monthlyCost * utilizationRate);
+    }, 0);
+    
+    const totalPersonnelCost = monthlyPersonnelCost * projectData.durationMonths;
+
+    const totalProjectCost = totalPersonnelCost + overheadCost + projectData.directCosts;
     const basePrice = totalProjectCost * (1 + companyData.profitMargin / 100);
     const vatAmount = basePrice * (companyData.vatRate / 100);
     const finalPrice = basePrice + vatAmount;
 
     return {
-      personnelCost,
+      personnelCost: totalPersonnelCost,
       overheadCost,
       totalProjectCost,
       basePrice,
@@ -470,6 +488,17 @@ const Index = () => {
                   />
                 </div>
                 <div>
+                  <Label htmlFor="durationMonths">Durata Progetto (mesi)</Label>
+                  <Input
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    value={projectData.durationMonths}
+                    onChange={(e) => setProjectData({...projectData, durationMonths: parseFloat(e.target.value) || 1})}
+                    placeholder="es. 3"
+                  />
+                </div>
+                <div>
                   <Label htmlFor="directCosts">Costi Diretti Specifici (€)</Label>
                   <Input
                     type="number"
@@ -500,13 +529,13 @@ const Index = () => {
                 <CardHeader className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
                   <CardTitle>💰 Risultati Stima</CardTitle>
                   <CardDescription className="text-emerald-100">
-                    {projectData.name}
+                    {projectData.name} - {projectData.durationMonths} {projectData.durationMonths === 1 ? 'mese' : 'mesi'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span>Costo Personale:</span>
+                      <span>Costo Personale ({projectData.durationMonths} {projectData.durationMonths === 1 ? 'mese' : 'mesi'}):</span>
                       <span className="font-medium">€{results.personnelCost.toLocaleString('it-IT', {maximumFractionDigits: 0})}</span>
                     </div>
                     
