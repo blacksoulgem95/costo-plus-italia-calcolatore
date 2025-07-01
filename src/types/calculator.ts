@@ -36,14 +36,21 @@ export interface FixedCosts {
 }
 
 export interface ProjectData {
+  id: string;
   name: string;
   directCosts: number;
   durationMonths: number;
 }
 
+export interface Projects {
+  items: ProjectData[];
+  activeProjectId?: string;
+}
+
 export interface CalculationResults {
   personnelCost: number;
   overheadCost: number;
+  monthlyOverhead: number[];
   totalProjectCost: number;
   basePrice: number;
   vatAmount: number;

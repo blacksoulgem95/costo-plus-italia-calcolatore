@@ -36,11 +36,19 @@ const Index = () => {
     otherDescription: ''
   });
 
-  const [projectData, setProjectData] = useState<ProjectData>({
-    name: '',
-    directCosts: 0,
-    durationMonths: 1
+  const [projects, setProjects] = useState<Projects>({
+    items: [
+      {
+        id: Date.now().toString(),
+        name: '',
+        directCosts: 0,
+        durationMonths: 1
+      }
+    ],
+    activeProjectId: Date.now().toString()
   });
+
+  const activeProject = projects.items.find(p => p.id === projects.activeProjectId) || projects.items[0];
 
   const [showResults, setShowResults] = useState(false);
 
@@ -54,7 +62,7 @@ const Index = () => {
       return;
     }
 
-    if (!projectData.name.trim()) {
+    if (!activeProject.name.trim()) {
       toast({
         title: "⚠️ DATA MISSING", 
         description: "Nome progetto richiesto per procedere.",
@@ -63,15 +71,8 @@ const Index = () => {
       return;
     }
 
-    const hasProjectHours = resources.some(r => (r.projectHours || 0) > 0);
-    if (!hasProjectHours) {
-      toast({
-        title: "⚠️ PROCESSING ERROR",
-        description: "Ore progetto necessarie per completare il calcolo.",
-        variant: "destructive"
-      });
-      return;
-    }
+    // Rimuoviamo questo controllo poiché ora le ore vengono calcolate automaticamente
+    // Le risorse senza ore di progetto specificate useranno il calcolo full-time
 
     setShowResults(true);
     toast({
@@ -80,7 +81,14 @@ const Index = () => {
     });
   };
 
-  const results = showResults ? calculateProjectCost(resources, fixedCosts, projectData, companyData) : null;
+  const calculateResults = () => {
+    if (!showResults) return null;
+
+    // Calcola overhead distribuito su tutti i mesi dei progetti
+    return calculateProjectCost(resources, fixedCosts, projects.items, activeProject, companyData);
+  };
+
+  const results = calculateResults();
 
   return (
     <div className="min-h-screen bg-background cyberpunk-grid-bg flex flex-col">
@@ -134,7 +142,7 @@ const Index = () => {
                 <CompanyDataCard companyData={companyData} setCompanyData={setCompanyData} />
                 <ResourcesCard resources={resources} setResources={setResources} />
                 <FixedCostsCard fixedCosts={fixedCosts} setFixedCosts={setFixedCosts} />
-                <ProjectDataCard projectData={projectData} setProjectData={setProjectData} />
+                <ProjectDataCard projects={projects} setProjects={setProjects} />
 
                 <div className="flex justify-center">
                   <Button 
@@ -152,7 +160,8 @@ const Index = () => {
               {showResults && results && (
                 <ResultsCard 
                   results={results} 
-                  projectData={projectData} 
+                  projectData={activeProject} 
+                  allProjects={projects.items}
                   companyData={companyData} 
                   resources={resources} 
                 />

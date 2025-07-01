@@ -87,15 +87,70 @@ export const calculateTotalFixedCosts = (fixedCosts: FixedCosts): number => {
  * Questo approccio garantisce che l'overhead sia proporzionale alle ore di lavoro
  * effettivamente allocate al progetto, indipendentemente dalla durata temporale.
  */
+/**
+ * Calcola le ore di progetto standard per una risorsa full-time
+ * basato su 40 ore settimanali per la durata del progetto
+ */
+export const calculateFullTimeHours = (durationMonths: number): number => {
+  // 40 ore settimanali * 4.33 settimane/mese (media) * durata in mesi
+  return Math.round(40 * 4.33 * durationMonths);
+};
+
+/**
+ * Calcola l'overhead mensile distribuito su tutti i mesi dei progetti
+ */
+export const calculateMonthlyOverhead = (
+  fixedCosts: FixedCosts,
+  projects: ProjectData[]
+): number[] => {
+  const totalFixedCostsPerYear = calculateTotalFixedCosts(fixedCosts);
+  const monthlyFixedCosts = totalFixedCostsPerYear / 12;
+
+  // Determina il numero totale di mesi coperti dai progetti
+  const projectMonths = new Set<number>();
+
+  // Mappiamo tutti i mesi utilizzati nei progetti
+  projects.forEach(project => {
+    const startMonth = 0; // Mese base per il primo progetto
+    const endMonth = Math.ceil(project.durationMonths);
+
+    for (let i = startMonth; i < endMonth; i++) {
+      projectMonths.add(i);
+    }
+  });
+
+  // Ordina i mesi
+  const sortedMonths = Array.from(projectMonths).sort((a, b) => a - b);
+
+  // Se non ci sono mesi, restituisce un array vuoto
+  if (sortedMonths.length === 0) {
+    return [];
+  }
+
+  // Crea un array con l'overhead distribuito per ciascun mese coinvolto
+  return sortedMonths.map(() => monthlyFixedCosts);
+};
+
 export const calculateProjectCost = (
   resources: Resource[],
   fixedCosts: FixedCosts,
-  projectData: ProjectData,
+  allProjects: ProjectData[],
+  activeProject: ProjectData,
   companyData: CompanyData
 ): CalculationResults => {
+  // Prepara una copia delle risorse con ore di progetto automatiche dove necessario
+  const resourcesWithHours = resources.map(resource => {
+    if (!resource.projectHours || resource.projectHours === 0) {
+      // Se non sono specificate ore di progetto, impostiamo un full-time standard
+      const fullTimeHours = calculateFullTimeHours(activeProject.durationMonths);
+      return { ...resource, projectHours: fullTimeHours };
+    }
+    return resource;
+  });
+
   // Calcola le ore fatturabili totali e le ore totali del progetto
-  const totalBillableHours = resources.reduce((sum, resource) => sum + resource.billableHours, 0);
-  const projectTotalHours = resources.reduce((sum, resource) => sum + (resource.projectHours || 0), 0);
+  const totalBillableHours = resourcesWithHours.reduce((sum, resource) => sum + resource.billableHours, 0);
+  const projectTotalHours = resourcesWithHours.reduce((sum, resource) => sum + (resource.projectHours || 0), 0);
 
   // Calcola l'incidenza dell'overhead orario sul progetto
   const totalFixedCostsPerYear = calculateTotalFixedCosts(fixedCosts);   // Costi fissi annuali
@@ -110,12 +165,15 @@ export const calculateProjectCost = (
   // Non moltiplicare per la durata del progetto poiché le ore di progetto sono già totali
   const overheadCost = hourlyOverheadRate * projectTotalHours;
 
+  // Calcola l'overhead mensile distribuito su tutti i progetti
+  const monthlyOverhead = calculateMonthlyOverhead(fixedCosts, allProjects);
+
   // L'overhead è proporzionale alle ore allocate, non alla durata del progetto
   // Se un freelancer lavora 100 ore, l'overhead è per 100 ore indipendentemente da quanto
   // tempo impieghi a completarle
 
   // Separiamo il calcolo per freelancer e dipendenti
-  const freelancerCosts = resources
+  const freelancerCosts = resourcesWithHours
     .filter(resource => resource.contractType === 'partitaiva')
     .reduce((sum, resource) => {
       const projectHours = resource.projectHours || 0;
@@ -134,23 +192,23 @@ export const calculateProjectCost = (
       return sum;
     }, 0);
 
-  // Calcolo costi mensili solo per dipendenti e collaboratori
-  const monthlyEmployeeCost = resources
+  // Calcolo costi per dipendenti e collaboratori
+  // Calcola il costo totale sul progetto, NON mensile, per evitare doppia moltiplicazione
+  const employeeCost = resourcesWithHours
     .filter(resource => resource.contractType !== 'partitaiva')
     .reduce((sum, resource) => {
       const projectHours = resource.projectHours || 0;
-      const monthlyHours = resource.billableHours / 12;
-      const utilizationRate = projectHours / monthlyHours;
-
-      // Per dipendenti e co.co.co, calcoliamo in base al costo completo comprensivo di contributi
       const monthlyCost = calculateEmployeeCost(resource);
-      return sum + (monthlyCost * utilizationRate);
+      const hourlyRate = monthlyCost / (resource.billableHours / 12);
+
+      // Il costo è basato sulle ore di progetto moltiplicate per la tariffa oraria
+      // senza ulteriore moltiplicazione per i mesi di progetto
+      return sum + (hourlyRate * projectHours);
     }, 0);
 
   // Calcola il costo totale del personale:
-  // - Per freelancer: costo fisso indipendente dalla durata
-  // - Per dipendenti: costo mensile moltiplicato per la durata
-  const totalPersonnelCost = freelancerCosts + (monthlyEmployeeCost * projectData.durationMonths);
+  // - Sia per freelancer che per dipendenti: costo basato sulle ore di progetto totali
+  const totalPersonnelCost = freelancerCosts + employeeCost;
 
   // Calcolo dei costi del progetto
   const totalProjectCost = totalPersonnelCost + overheadCost + projectData.directCosts;
@@ -179,6 +237,7 @@ export const calculateProjectCost = (
   return {
     personnelCost: totalPersonnelCost,
     overheadCost,
+    monthlyOverhead,
     totalProjectCost,
     basePrice,
     grossProfit,

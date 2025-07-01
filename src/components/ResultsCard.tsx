@@ -5,16 +5,17 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Database } from 'lucide-react';
 import { CalculationResults, Resource, ProjectData, CompanyData } from '@/types/calculator';
-import { calculateHourlyCost } from '@/utils/calculationUtils';
+import { calculateHourlyCost, calculateFullTimeHours } from '@/utils/calculationUtils';
 
 interface ResultsCardProps {
   results: CalculationResults;
   projectData: ProjectData;
+  allProjects: ProjectData[];
   companyData: CompanyData;
   resources: Resource[];
 }
 
-const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, companyData, resources }) => {
+const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, allProjects, companyData, resources }) => {
   // Funzione helper per formattare i valori in Euro
   const formatEuro = (value: number): string => {
     return `€${value.toLocaleString('it-IT', {maximumFractionDigits: 0})}`;
@@ -29,7 +30,7 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
     <div className="space-y-6">
       <Card className="cyberpunk-card border-accent/30 sticky top-4">
         <div className="text-xs font-mono p-2 bg-primary/10 border-b border-primary/30 text-muted-foreground">
-          <span className="text-primary font-semibold">&gt; INFORMAZIONE:</span> I costi dei freelancer sono fissi per le ore di progetto indicate, mentre i costi di dipendenti e collaboratori sono calcolati per l'intera durata del progetto ({projectData.durationMonths} {projectData.durationMonths === 1 ? 'mese' : 'mesi'}).
+          <span className="text-primary font-semibold">&gt; INFORMAZIONE:</span> I costi del personale sono calcolati in base alle ore di progetto effettive o stimate (40h/settimana se non specificate) moltiplicati per il costo orario.
         </div>
         <CardHeader className="bg-gradient-to-r from-accent/20 to-secondary/20 rounded-t-lg border-b border-accent/30">
           <CardTitle className="flex items-center gap-3 text-accent neon-text font-mono">
@@ -52,6 +53,23 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
             <div className="flex justify-between text-sm font-mono">
               <span><span className="text-secondary">&gt;</span> Overhead (ripartito sulle ore):</span>
               <span className="font-medium text-accent neon-text">{formatEuro(results.overheadCost)}</span>
+            </div>
+
+            {/* Mostra overhead mensile */}
+            <div className="mt-1 mb-2">
+              <div className="text-xs font-mono text-muted-foreground mb-1">
+                <span className="text-secondary">&gt;</span> Overhead mensile (distribuito su {allProjects.length} {allProjects.length === 1 ? 'progetto' : 'progetti'}):
+              </div>
+              <div className="flex flex-wrap gap-1 bg-card/30 p-2 rounded-md border border-accent/10">
+                {results.monthlyOverhead.map((amount, index) => (
+                  <div key={index} className="text-xs font-mono bg-accent/5 px-2 py-1 rounded">
+                    Mese {index + 1}: <span className="text-accent">{formatEuro(amount)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                <span className="text-primary font-semibold">&gt; INFO:</span> L'overhead totale è distribuito equamente tra i mesi effettivi di tutti i progetti
+              </div>
             </div>
 
             <div className="flex justify-between text-sm font-mono">
@@ -128,9 +146,10 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
         </CardHeader>
         <CardContent className="p-4 bg-card/50">
           <div className="space-y-3">
-            {resources.filter(r => (r.projectHours ?? 0) > 0).map((resource) => {
+                          {resources.map((resource) => {
+              const projectHours = resource.projectHours || calculateFullTimeHours(projectData.durationMonths);
               const hourlyCost = calculateHourlyCost(resource);
-              const resourceCost = hourlyCost * (resource.projectHours ?? 0);
+              const resourceCost = hourlyCost * projectHours;
               
               return (
                 <div key={resource.id} className="flex justify-between items-center text-sm p-2 cyberpunk-card bg-accent/5 rounded border-accent/20 font-mono">
@@ -154,10 +173,11 @@ const ResultsCard: React.FC<ResultsCardProps> = ({ results, projectData, company
                       )}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {resource.projectHours}h × {formatEuro(hourlyCost)}/h
+                      {projectHours}h
+                      {!resource.projectHours && <span className="text-accent">(full-time automatico)</span>} × {formatEuro(hourlyCost)}/h
                       {resource.contractType !== 'partitaiva' && (
                         <span className="text-xs text-muted-foreground ml-1">
-                          (incl. contributi, × {projectData.durationMonths} {projectData.durationMonths === 1 ? 'mese' : 'mesi'})
+                          (incl. contributi)
                         </span>
                       )}
                       {resource.contractType === 'partitaiva' && (

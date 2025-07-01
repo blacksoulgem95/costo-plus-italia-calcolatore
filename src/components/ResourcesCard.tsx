@@ -50,7 +50,7 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({ resources, setResources }
         </CardDescription>
         <div className="mt-2 text-xs text-muted-foreground font-mono bg-primary/5 p-2 rounded border border-primary/20">
           <span className="text-primary font-semibold">&gt; INFO:</span> Per freelancer (P.IVA) inserire <span className="text-accent">solo tariffa oraria</span> o <span className="text-accent">solo compenso mensile</span>, non entrambi.<br/>
-          <span className="text-secondary font-semibold">&gt; NOTA:</span> I freelancer vengono pagati per <span className="text-accent">ore effettive di lavoro</span>, mentre dipendenti/co.co.co per <span className="text-accent">tutta la durata del progetto</span>.
+          <span className="text-secondary font-semibold">&gt; NOTA:</span> Il calcolo dei costi è basato sulle <span className="text-accent">ore di progetto</span> moltiplicate per il <span className="text-accent">costo orario</span>, indipendentemente dal tipo di contratto.
         </div>
       </CardHeader>
       <CardContent className="p-6 space-y-6 bg-card/50">
@@ -112,6 +112,9 @@ const ResourcesCard: React.FC<ResourcesCardProps> = ({ resources, setResources }
                         onChange={(e) => updateResource(resource.id, 'netSalary', parseFloat(e.target.value) || undefined)}
                         className="cyberpunk-input font-mono"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Se vuoto, considera full-time (40h/sett. per tutta la durata)
+                      </p>
                     </div>
                     <div>
                       <Label className="font-mono text-foreground mb-2 block">
